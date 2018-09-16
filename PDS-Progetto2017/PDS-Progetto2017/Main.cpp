@@ -1,41 +1,59 @@
-#include "NetworkThread.h"
-
-//Mutua esclusione: protegge la coda.
-std::shared_ptr<std::mutex> mutexPointer(new std::mutex);
-//Queue condivisa.
-std::shared_ptr<std::queue<std::string>> queuePointer(new std::queue<std::string>);
-//Variabile di condizionamento: indica che la coda non è vuota.
-std::shared_ptr<std::condition_variable> notEmptyCondVar(new std::condition_variable);
-//Variabile di condizionamento: indica che la coda è vuota.
-std::shared_ptr<std::condition_variable> emptyCondVar(new std::condition_variable);
+#include "ReceiverThread.h"
+#include "SenderThread.h"
 
 int main()
 {
-	//Creo un lock per l'accesso alle risorse
-	//std::lock_guard<std::mutex> lockGuard(*mutexPointer);
-	std::unique_lock<std::mutex> uniqueLock1(*mutexPointer);
-	//Creo un thread per le operazioni web.
-	NetworkThread nt;
-	nt.init(mutexPointer, queuePointer, notEmptyCondVar, emptyCondVar);
-	//Avvio il thread della classe NetworkThread.
-	nt.start();
-	//Attendo per 3 secondi (Consente di sapere se il thread è effettivamente in attesa).
-	std::this_thread::sleep_for(std::chrono::seconds(3));
-	//Inserisco un elemento nella queue.
-	queuePointer->push("Ciao dal thread principale!!!");
-	//Sblocco il mutex.
-	uniqueLock1.unlock();
-	//Notifico al thread che ora può andare in esecuzione.
-	notEmptyCondVar->notify_one();
-	//Rilascio il mutex usato.
-	uniqueLock1.release();
-	//Creo un nuovo mutex per attendere l'esecuzione.
-	std::unique_lock<std::mutex> uniqueLock2(*mutexPointer);
-	std::cout << "Thread principale: attendo il lock." << std::endl;
-	//Dico al thread di attendere lo sblocco del lock.
-	emptyCondVar->wait(uniqueLock2);
-	std::cout << "Thread principale: Uscita wait e terminazione dell'esecuzione del programma." << std::endl;
+	//Variabile di mutua esclusione.
+	std::shared_ptr<std::mutex> mutexPointer = std::make_shared<std::mutex>();
+	//Queue condivisa, contenente la lista degli ip degli utenti presenti nella rete locale.
+	std::shared_ptr<std::queue<std::string>> queuePointer = std::make_shared<std::queue<std::string>>();
+	//Variabile di condizionamento per il colloquio tra receiver e main.
+	std::shared_ptr<std::condition_variable> mainReceiverCondVar = std::make_shared<std::condition_variable>();
+	//Variabile che consente di evitare notifiche spurie nel main durante il colloquio con il receiver.
+	std::shared_ptr<bool> mainReceiverFlag = std::make_shared<bool>();
+
+	//Creo un thread di ricezione dei messaggi multicast.
+	ReceiverThread rt(mutexPointer, queuePointer, mainReceiverCondVar, mainReceiverFlag);
+	//Avvio il thread per la ricezione dei messaggi multicast.
+	rt.start();
+	//Creo un thread di l'invio di messaggi multicast.
+	SenderThread st;
+	//Avvio il thread per l'invio di messaggi multicast.
+	st.start();
+
+	//Setto a false il flag per le notifiche spurie.
+	*mainReceiverFlag = false;
+
+	//TODO: ciclo infinito: vedere se tenerlo o meno.
+	while (1)
+	{
+		//Creo un lock per accedere ai dati della queue.
+		std::unique_lock<std::mutex> uniqueLock(*mutexPointer);
+		//Protezione contro notifiche spurie.
+		while (*mainReceiverFlag == false)
+		{  		
+			//Attendo lo sblocco del lock.
+			mainReceiverCondVar->wait(uniqueLock);
+		}
+		//Prendo il dato presente nella queue e lo salvo in una stringa.
+		std::string stringa = queuePointer->front();
+		//Rimuovo il dato dalla queue e stampo a schermo il valore ricevuto.
+		queuePointer->pop();
+		std::cout << "Thread principale: ho ricevuto questo dato: " << stringa << std::endl;
+		//Riabilito il flag per evitare notifiche spurie.
+		*mainReceiverFlag = false;
+		//Sblocco il mutex.
+		uniqueLock.unlock();
+	}
 
 	//Termino il programma.
+	std::cout << "Thread principale: Uscita wait e terminazione dell'esecuzione del programma." << std::endl;
+
+	//Pulitura degli shared pointers.
+	mutexPointer = nullptr;
+	queuePointer = nullptr;
+	mainReceiverCondVar = nullptr;
+	mainReceiverFlag = nullptr;
+
 	return 0;
 }
