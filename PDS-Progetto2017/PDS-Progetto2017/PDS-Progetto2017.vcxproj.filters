@@ -24,6 +24,9 @@
     <ClCompile Include="SenderThread.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="UserDataComparator.hpp">
+      <Filter>File di intestazione</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ReceiverThread.h">
@@ -36,6 +39,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="CommonImports.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="UserData.hpp">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

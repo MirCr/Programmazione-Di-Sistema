@@ -118,12 +118,14 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="ReceiverThread.cpp" />
     <ClCompile Include="SenderThread.cpp" />
+    <ClCompile Include="UserDataComparator.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonImports.h" />
     <ClInclude Include="CommonNetworkImports.h" />
     <ClInclude Include="ReceiverThread.h" />
     <ClInclude Include="SenderThread.h" />
+    <ClInclude Include="UserData.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

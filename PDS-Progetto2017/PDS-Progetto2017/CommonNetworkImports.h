@@ -10,7 +10,8 @@
 #pragma comment(lib,"ws2_32.lib") 
 
 //Dati ricorrenti, definiti in maniera univoca qui.
-#define multicastIP "224.0.0.1"
+#define multicastIP "239.255.255.250"
 #define multicastPort 55555
+#define multicastPortStr "55555"
 #define multicastMsgBufSize 256
 #define multicastSendSleepTime 1
