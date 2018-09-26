@@ -11,13 +11,17 @@ int main()
 	std::shared_ptr<std::condition_variable> sharedMainRecvCondVar = std::make_shared<std::condition_variable>();
 	//Variabile che consente di evitare notifiche spurie nel main durante il colloquio con il receiver.
 	std::shared_ptr<bool> sharedMainRecvFlag = std::make_shared<bool>();
+	//Variabile che consente di passare dallo stato online allo stato offline e viceversa. True = online.
+	std::shared_ptr<bool> shareOnlineFlag = std::make_shared<bool>();
+	//Setto a true il flag in modo da essere online di default.
+	*shareOnlineFlag = true;
 
 	//Creo un thread di ricezione dei messaggi multicast.
 	ReceiverThread rt(sharedMainRecvMutex, sharedUserSet, sharedMainRecvCondVar, sharedMainRecvFlag);
 	//Avvio il thread per la ricezione dei messaggi multicast.
 	rt.start();
 	//Creo un thread di l'invio di messaggi multicast.
-	SenderThread st("Antonio");
+	SenderThread st("Antonio", shareOnlineFlag);
 	//Avvio il thread per l'invio di messaggi multicast.
 	st.start();
 

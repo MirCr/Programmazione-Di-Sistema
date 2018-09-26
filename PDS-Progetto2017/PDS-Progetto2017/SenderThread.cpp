@@ -1,8 +1,9 @@
 #include "SenderThread.h"
 
-SenderThread::SenderThread(const char *name)
+SenderThread::SenderThread(const char *name, std::shared_ptr<bool>& shareOnlineFlag)
 {
 	this->name = name;
+	this->shareOnlineFlag = shareOnlineFlag;
 }
 
 /* Distruttore: rilascia le risorse contenute nell’oggetto.*/
@@ -63,14 +64,26 @@ void SenderThread::sendMulticastPackets()
 	//Invio dei dati verso la destinazione.
 	while (1) 
 	{
-		iResult = (int) sendto(sendSocket, name, strlen(name), 0, (struct sockaddr*) &addr, sizeof(addr));
-		if (iResult < 0)
+		//Sono online. Quindi invio.
+		if (*shareOnlineFlag == true)
 		{
-			//TODO: GESTIONE ERRORE.
-			std::cout << "L'invio e' fallito con il seguente errore: " << WSAGetLastError() << std::endl;
-			return;
+
+			iResult = (int)sendto(sendSocket, name, strlen(name), 0, (struct sockaddr*) &addr, sizeof(addr));
+			if (iResult < 0)
+			{
+				//TODO: GESTIONE ERRORE.
+				std::cout << "L'invio e' fallito con il seguente errore: " << WSAGetLastError() << std::endl;
+				return;
+			}
+			std::cout << "SenderThread: ho inviato questo dato: " << name << std::endl;
+			Sleep(multicastSendSleepTime * 1000);
 		}
-		std::cout << "SenderThread: ho inviato questo dato: " << name << std::endl;
-		Sleep(multicastSendSleepTime*1000);
+		//Sono offline. Non invio.
+		else if (*shareOnlineFlag == false)
+		{
+			std::cout << "Sono OFFLINE." << std::endl;
+			//imposto un tempo di riposo maggiore visto che sono offline.
+			Sleep(multicastSendSleepTime * 3000);
+		}
 	}
 }

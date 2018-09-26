@@ -1,5 +1,5 @@
-﻿  ReceiverThread.cpp
-  SenderThread.cpp
-d:\progetti\programmazione di sistema\pds-progetto2017\pds-progetto2017\senderthread.cpp(66): warning C4267: 'argomento': conversione da 'size_t' a 'int'. Possibile perdita di dati.
+﻿  SenderThread.cpp
+c:\users\mirko\documents\progetto\pds-progetto2017\pds-progetto2017\senderthread.cpp(71): warning C4267: 'argomento': conversione da 'size_t' a 'int'. Possibile perdita di dati.
+  UserDataComparator.hpp
   Generazione del codice in corso...
-  PDS-Progetto2017.vcxproj -> D:\Progetti\Programmazione di sistema\PDS-Progetto2017\x64\Debug\PDS-Progetto2017.exe
+LINK : fatal error LNK1104: impossibile aprire il file 'C:\Users\Mirko\Documents\progetto\PDS-Progetto2017\x64\Debug\PDS-Progetto2017.exe'
