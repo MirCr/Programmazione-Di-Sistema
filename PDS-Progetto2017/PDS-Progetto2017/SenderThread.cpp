@@ -82,7 +82,7 @@ void SenderThread::sendMulticastPackets()
 		else if (*shareOnlineFlag == false)
 		{
 			std::cout << "Sono OFFLINE." << std::endl;
-			//imposto un tempo di riposo maggiore visto che sono offline.
+			//imposto un tempo di riposo maggiore dato che sono offline.
 			Sleep(multicastSendSleepTime * 3000);
 		}
 	}
