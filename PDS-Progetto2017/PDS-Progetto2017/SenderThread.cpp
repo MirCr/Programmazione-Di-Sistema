@@ -19,6 +19,8 @@ SenderThread::~SenderThread()
 	closesocket(sendSocket);
 	//Termino l'uso della Winsock 2 DLL(Ws2_32.dll).
 	WSACleanup();
+	//Azzero il puntatore, facendo così decrementare il punteggio di condivisione.
+	shareOnlineFlag = nullptr;
 }
 
 /* Metodo di avvio del thread sulla classe SenderThread.*/
