@@ -130,7 +130,7 @@ void ReceiverThread::listenForMulticastData()
 				ipFlag = 1;
 			}
 		}
-			//Se in precedenza è stato posto il flag ad 1 (messaggio ricevuto dall'host stesso) non entro.
+		//Se in precedenza è stato posto il flag ad 1 (messaggio ricevuto dall'host stesso) non entro.
 		if (ipFlag == 0)
 		{
 			std::cout << "ReceiverThread: ho ricevuto questo dato: " << msgbuf << " da " << receivedIp << std::endl;
@@ -150,6 +150,7 @@ void ReceiverThread::listenForMulticastData()
 /*Metodo per prelevare la lista di ip del PC corrente.*/
 std::list <std::string> ReceiverThread::getHostIPs()
 {
+	int i;
 	//List contenente gli IP del dispositivo corrente.
 	std::list <std::string> hostIP;
 	//Stringa contenente il nome dell'host corrente.
@@ -174,13 +175,17 @@ std::list <std::string> ReceiverThread::getHostIPs()
 	}
 
 	//Ciclo e salvo gli ip del dispositivo corrente.
-	for (int i = 0; phe->h_addr_list[i] != 0; ++i)
+	for (i = 0; phe->h_addr_list[i] != 0; ++i)
 	{
 		struct in_addr addr;
 		memcpy(&addr, phe->h_addr_list[i], sizeof(struct in_addr));
 		hostIP.push_front(std::string(inet_ntoa(addr)));
 		std::cout << "Indirizzo " << i << ": " << hostIP.front() << std::endl;
 	}
+
+	//Inserisco nella coda anche l'indirizzo di loopback 127.0.0.1.
+	hostIP.push_front(std::string("127.0.0.1"));
+	std::cout << "Indirizzo " << i << ": " << hostIP.front() << std::endl;
 
 	//restituisco la lista di ip del dispositivo corrente.
 	return hostIP;

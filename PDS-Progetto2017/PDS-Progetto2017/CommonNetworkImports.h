@@ -14,4 +14,5 @@
 #define multicastPort 55555
 #define multicastPortStr "55555"
 #define multicastMsgBufSize 256
-#define multicastSendSleepTime 1
+#define multicastOnlineSendSleepTime 1
+#define multicastOfflineSendSleepTime 5

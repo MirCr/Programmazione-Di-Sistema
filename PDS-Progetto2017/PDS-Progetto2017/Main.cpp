@@ -1,27 +1,44 @@
 #include "ReceiverThread.h"
 #include "SenderThread.h"
 
+//Import per lettura/scrittura file.
+#include <fstream>
+
+using namespace std;
+
+//Definizione classi main (forward declaration).
+void getUserData(string &name);
+string insertData();
+
 int main()
 {
+	string name;
+
 	//Variabile di mutua esclusione.
-	std::shared_ptr<std::mutex> sharedMainRecvMutex = std::make_shared<std::mutex>();
+	shared_ptr<mutex> sharedMainRecvMutex = make_shared<mutex>();
 	//Queue condivisa, contenente la lista degli utenti presenti nella rete locale.
-	std::shared_ptr<std::set<UserData, UserDataComparator>> sharedUserSet = std::make_shared<std::set<UserData, UserDataComparator>>();
+	shared_ptr<set<UserData, UserDataComparator>> sharedUserSet = make_shared<set<UserData, UserDataComparator>>();
 	//Variabile di condizionamento per il colloquio tra receiver e main.
-	std::shared_ptr<std::condition_variable> sharedMainRecvCondVar = std::make_shared<std::condition_variable>();
+	shared_ptr<condition_variable> sharedMainRecvCondVar = make_shared<condition_variable>();
 	//Variabile che consente di evitare notifiche spurie nel main durante il colloquio con il receiver.
-	std::shared_ptr<bool> sharedMainRecvFlag = std::make_shared<bool>();
+	shared_ptr<bool> sharedMainRecvFlag = make_shared<bool>();
 	//Variabile che consente di passare dallo stato online allo stato offline e viceversa. True = online.
-	std::shared_ptr<bool> shareOnlineFlag = std::make_shared<bool>();
+	shared_ptr<bool> sharedOnlineFlag = make_shared<bool>();
+	
 	//Setto a true il flag in modo da essere online di default.
-	*shareOnlineFlag = true;
+	*sharedOnlineFlag = true;
+
+	//Apro il file dei dati e leggo il nome dell'utente. 
+	//Se non è presente alcun file lo creo e chiedo all'utente i suoi dati.
+	//TODO: leggere anche posizione foto.
+	getUserData(name);
 
 	//Creo un thread di ricezione dei messaggi multicast.
 	ReceiverThread rt(sharedMainRecvMutex, sharedUserSet, sharedMainRecvCondVar, sharedMainRecvFlag);
 	//Avvio il thread per la ricezione dei messaggi multicast.
 	rt.start();
 	//Creo un thread di l'invio di messaggi multicast.
-	SenderThread st("Antonio", shareOnlineFlag);
+	SenderThread st(name, sharedOnlineFlag);
 	//Avvio il thread per l'invio di messaggi multicast.
 	st.start();
 
@@ -32,7 +49,7 @@ int main()
 	while (1)
 	{
 		//Creo un lock per accedere ai dati della queue.
-		std::unique_lock<std::mutex> uniqueLock(*sharedMainRecvMutex);
+		unique_lock<mutex> uniqueLock(*sharedMainRecvMutex);
 		//Protezione contro notifiche spurie.
 		while (*sharedMainRecvFlag == false)
 		{  		
@@ -41,9 +58,9 @@ int main()
 		}
 
 		int i = 0;
-		for (std::set<UserData, UserDataComparator>::iterator it= sharedUserSet->begin(); it != sharedUserSet->end(); it++)
+		for (set<UserData, UserDataComparator>::iterator it= sharedUserSet->begin(); it != sharedUserSet->end(); it++)
 		{
-			std::cout << "Thread principale: Elemento " << i << ": " << it->getIP() << std::endl;
+			cout << "Thread principale: Elemento " << i << ": " << it->getIP() << endl;
 		}
 		//Prendo il dato presente nella queue e lo salvo in una stringa.
 		//Riabilito il flag per evitare notifiche spurie.
@@ -53,13 +70,50 @@ int main()
 	}
 
 	//Termino il programma.
-	std::cout << "Thread principale: Uscita wait e terminazione dell'esecuzione del programma." << std::endl;
+	cout << "Thread principale: Uscita wait e terminazione dell'esecuzione del programma." << endl;
 
 	//Pulitura degli shared pointers.
 	sharedMainRecvMutex = nullptr;
 	sharedUserSet = nullptr;
 	sharedMainRecvCondVar = nullptr;
 	sharedMainRecvFlag = nullptr;
+	sharedOnlineFlag = nullptr;
 
 	return 0;
+}
+
+/*Funzione di lettura dei dati dell'utente da file.*/
+void getUserData(string &name)
+{
+	//Creo un nuovo oggetto di tipo ifstream che punta al file dei dati dell'utente
+	ifstream userData("data");
+	//Se il file esiste entro qui.
+	if (userData.good())
+	{
+		userData >> name;
+	}
+	//Se invece il file non esiste entro qui.
+	else
+	{
+		//Richiedo all'utente il suo nome.
+		name = insertData();
+		//Creo un nuovo file.
+		fstream newUserData;
+		newUserData.open("data", ostream::out);
+		//Scrivo il nome dell'utente.
+		newUserData << name;
+		newUserData.close();
+	}
+	userData.close();
+}
+
+/*Funzione di richiesta inserimento nome (in seguito aggiungere anche foto!)*/
+string insertData()
+{
+	string name;
+	cout << "Nuovo utente." << endl;
+	cout << "Digita il tuo nome: ";
+	cin >> name;
+	cout << endl;
+	return name;
 }

@@ -1,9 +1,9 @@
 #include "SenderThread.h"
 
-SenderThread::SenderThread(const char *name, std::shared_ptr<bool>& shareOnlineFlag)
+SenderThread::SenderThread(std::string name, std::shared_ptr<bool>& sharedOnlineFlag)
 {
 	this->name = name;
-	this->shareOnlineFlag = shareOnlineFlag;
+	this->sharedOnlineFlag = sharedOnlineFlag;
 }
 
 /* Distruttore: rilascia le risorse contenute nell’oggetto.*/
@@ -20,7 +20,7 @@ SenderThread::~SenderThread()
 	//Termino l'uso della Winsock 2 DLL(Ws2_32.dll).
 	WSACleanup();
 	//Azzero il puntatore, facendo così decrementare il punteggio di condivisione.
-	shareOnlineFlag = nullptr;
+	sharedOnlineFlag = nullptr;
 }
 
 /* Metodo di avvio del thread sulla classe SenderThread.*/
@@ -33,6 +33,9 @@ void SenderThread::start()
 /*Metodo per l'invio di pacchetti UDP multicast.*/
 void SenderThread::sendMulticastPackets()
 {
+	//Converto il nome dell'utente in un const char *;
+	const char * cname = name.c_str();
+
 	//Variabile winsock.
 	WSADATA wsaData;
 	//Intero contenente il codice di errore.
@@ -67,25 +70,25 @@ void SenderThread::sendMulticastPackets()
 	while (1) 
 	{
 		//Sono online. Quindi invio.
-		if (*shareOnlineFlag == true)
+		if (*sharedOnlineFlag == true)
 		{
 
-			iResult = (int)sendto(sendSocket, name, strlen(name), 0, (struct sockaddr*) &addr, sizeof(addr));
+			iResult = (int)sendto(sendSocket, cname, strlen(cname), 0, (struct sockaddr*) &addr, sizeof(addr));
 			if (iResult < 0)
 			{
 				//TODO: GESTIONE ERRORE.
 				std::cout << "L'invio e' fallito con il seguente errore: " << WSAGetLastError() << std::endl;
 				return;
 			}
-			std::cout << "SenderThread: ho inviato questo dato: " << name << std::endl;
-			Sleep(multicastSendSleepTime * 1000);
+			std::cout << "SenderThread: ho inviato questo dato: " << cname << std::endl;
+			Sleep(multicastOnlineSendSleepTime * 1000);
 		}
 		//Sono offline. Non invio.
-		else if (*shareOnlineFlag == false)
+		else if (*sharedOnlineFlag == false)
 		{
-			std::cout << "Sono OFFLINE." << std::endl;
+			std::cout << "SenderThread: Sono OFFLINE." << std::endl;
 			//imposto un tempo di riposo maggiore dato che sono offline.
-			Sleep(multicastSendSleepTime * 3000);
+			Sleep(multicastOfflineSendSleepTime * 1000);
 		}
 	}
 }
