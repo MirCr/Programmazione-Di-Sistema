@@ -1,7 +1,1 @@
-﻿  Main.cpp
-  ReceiverThread.cpp
-  SenderThread.cpp
-d:\progetto mirko\pds-progetto2017\pds-progetto2017\senderthread.cpp(76): warning C4267: 'argomento': conversione da 'size_t' a 'int'. Possibile perdita di dati.
-  UserDataComparator.hpp
-  Generazione del codice in corso...
-  PDS-Progetto2017.vcxproj -> D:\progetto mirko\PDS-Progetto2017\x64\Debug\PDS-Progetto2017.exe
+﻿

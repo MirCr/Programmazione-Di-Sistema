@@ -10,8 +10,8 @@ class ReceiverThread
 		void start();
 		/* Metodo per l'ascolto di pacchetti UDP multicast.*/
 		void listenForMulticastData();
-		/*Metodo per prelevare la lista di ip del PC corrente.*/
-		std::list <std::string> getHostIPs();
+		/*Metodo per prelevare il set di ip del PC corrente.*/
+		std::set <std::string> getHostIPs();
 	private:
 		//Socket di ascolto.
 		int listenSocket;

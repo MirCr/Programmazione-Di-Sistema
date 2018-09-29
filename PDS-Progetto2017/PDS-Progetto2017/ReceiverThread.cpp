@@ -40,8 +40,10 @@ void ReceiverThread::listenForMulticastData()
 {
 	//Variabile winsock.
 	WSADATA wsaData;
-	//Interi contenenti rispettivamente codici di errore e flags.
-	int iResult, ipFlag;
+	//Intero contenente il codice di errore.
+	int iResult;
+	//Boolean di verifica ip.
+	bool isContained;
 
 	//Inizializzo Winsock.
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -53,7 +55,7 @@ void ReceiverThread::listenForMulticastData()
 	}
 
 	//Prelevo la lista di ip del dispositivo corrente.
-	std::list <std::string> hostIP = getHostIPs();
+	std::set <std::string> hostIP = getHostIPs();
 
 	//SETTING DEL LISTENER.
 	//Creo quel che sembra un socket UDP ordinario.
@@ -106,7 +108,6 @@ void ReceiverThread::listenForMulticastData()
 	//Loop di ricezione messaggi UDP.
 	while (1) 
 	{
-		ipFlag = 0;
 		char msgbuf[multicastMsgBufSize];
 		int addrlen = sizeof(addr);
 		iResult = recvfrom(listenSocket, msgbuf, multicastMsgBufSize, 0, (struct sockaddr *) &addr, &addrlen);
@@ -121,17 +122,11 @@ void ReceiverThread::listenForMulticastData()
 
 		//Creo una stringa contenente l'ip ricevuto.
 		std::string receivedIp = inet_ntoa(addr.sin_addr);
-		//Se l'ip coincide con uno di quelli contenuti nella lista setto il flag ad uno.
-		for (std::list<std::string>::iterator it = hostIP.begin(); it != hostIP.end(); it++)
-		{
-			iResult = receivedIp.compare(*it);
-			if (iResult == 0)
-			{
-				ipFlag = 1;
-			}
-		}
-		//Se in precedenza è stato posto il flag ad 1 (messaggio ricevuto dall'host stesso) non entro.
-		if (ipFlag == 0)
+		
+		//Se l'ip coincide con uno di quelli contenuti nel set isContained verrà settato a true.
+		isContained = hostIP.find(receivedIp) != hostIP.end(); 
+		//Se in precedenza è stato posto isContained a true (messaggio ricevuto dall'host stesso) non entro.
+		if (isContained == false)
 		{
 			std::cout << "ReceiverThread: ho ricevuto questo dato: " << msgbuf << " da " << receivedIp << std::endl;
 			//Definisco un lock di accesso alla risorsa.
@@ -147,12 +142,12 @@ void ReceiverThread::listenForMulticastData()
 	return;
 };
 
-/*Metodo per prelevare la lista di ip del PC corrente.*/
-std::list <std::string> ReceiverThread::getHostIPs()
+/*Metodo per prelevare il set di ip del PC corrente.*/
+std::set <std::string> ReceiverThread::getHostIPs()
 {
 	int i;
 	//List contenente gli IP del dispositivo corrente.
-	std::list <std::string> hostIP;
+	std::set <std::string> hostIP;
 	//Stringa contenente il nome dell'host corrente.
 	char hostName[80];
 	//Intero contenente il codice di errore.
@@ -179,13 +174,13 @@ std::list <std::string> ReceiverThread::getHostIPs()
 	{
 		struct in_addr addr;
 		memcpy(&addr, phe->h_addr_list[i], sizeof(struct in_addr));
-		hostIP.push_front(std::string(inet_ntoa(addr)));
-		std::cout << "Indirizzo " << i << ": " << hostIP.front() << std::endl;
+		hostIP.insert(std::string(inet_ntoa(addr)));
+		std::cout << "Indirizzo " << i << ": " << inet_ntoa(addr) << std::endl;
 	}
 
 	//Inserisco nella coda anche l'indirizzo di loopback 127.0.0.1.
-	hostIP.push_front(std::string("127.0.0.1"));
-	std::cout << "Indirizzo " << i << ": " << hostIP.front() << std::endl;
+	hostIP.insert(std::string("127.0.0.1"));
+	std::cout << "Indirizzo " << i << ": " << "127.0.0.1" << std::endl;
 
 	//restituisco la lista di ip del dispositivo corrente.
 	return hostIP;
