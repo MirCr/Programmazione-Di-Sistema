@@ -17,3 +17,11 @@ git add . -> aggiungo tutti gli elementi del repository attuale e li preparo al 
 git commit -m "nuovo commit" -> Faccio il commit dei cambiamenti effettuati e li preparo ad essere spediti verso un repository remoto
 git push origin master -> push del progetto verso repository remoto
 ```
+
+### Creare un branch (e lavorare al suo interno)
+```
+(master) è il branch originario.
+ git branch "nome_branch" -> crea un nuovo branch chiamato "nome_branch".
+ git branch -> visualizza l'elenco dei branch (master branch compreso).
+ git checkout "nome_branch" ->switch dal branch corrente al branch "nome_branch".
+ ```
