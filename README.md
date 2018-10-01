@@ -20,8 +20,12 @@ git push origin master -> push del progetto verso repository remoto
 
 ### Creare un branch (e lavorare al suo interno)
 ```
-(master) è il branch originario.
+ (master) è il branch originario.
  git branch "nome_branch" -> crea un nuovo branch chiamato "nome_branch".
  git branch -> visualizza l'elenco dei branch (master branch compreso).
- git checkout "nome_branch" ->switch dal branch corrente al branch "nome_branch".
+ git checkout "nome_branch" -> switch dal branch corrente al branch "nome_branch".
+ git -> pull origin "nome_branch" -> pull del progetto sul branch "nome_branch".
+ git -> push origin "nome_branch" -> push del progetto sul branch "nome_branch".
+ 
+ E' ora possibile lavorare sul nuovo branch. 
  ```
