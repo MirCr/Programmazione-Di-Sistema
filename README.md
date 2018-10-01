@@ -26,6 +26,5 @@ git push origin master -> push del progetto verso repository remoto
  git checkout "nome_branch" -> switch dal branch corrente al branch "nome_branch".
  git -> pull origin "nome_branch" -> pull del progetto sul branch "nome_branch".
  git -> push origin "nome_branch" -> push del progetto sul branch "nome_branch".
- 
  E' ora possibile lavorare sul nuovo branch. 
  ```
