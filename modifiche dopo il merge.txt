@@ -1,0 +1,22 @@
+userDAta.hpp 
+getName -> messo costante per il motivo spiegato qua
+
+https://stackoverflow.com/questions/13103755/intellisense-the-object-has-type-qualifiers-that-are-not-compatible-with-the-me/13103791
+
+mi dava conflitto nel file MainWin.cpp linea 68.
+
+
+ReceiverThread.cpp: linea 129 ho messo l'istruzione emit SetUsersListReady();  in modo che venga emesso il segnale che risvegli la funzione di aggiornamento della lista visualizzata. 
+
+
+IMPORTANTE: 
+Ho tolto il meccanismo della condition variable perchè la notifica viene fatta attraverso il meccanismo singal - slot . DA TESTARE. L'idea è che 
+una volta ricevute le risposte, inserite nello sharedSet, trammite emit sveglio la funzione che aggiorna. C'è la possibilità di passare la lista tramite emit alla funzione che aggiorna la gui, ma essendo uno shared_pointer non ce ne dovrebbe essere bisogno. 
+Probabilmente bisognera usare un Qmutex o mutex tradizionale nella funzione di ricezione degli utenti (file ReceiverThread) e nel file MainWin all'intero della funzione createLabels() nel momento che si copia la lista sharedUserSet all'interno della lista di QString. 
+
+
+
+In alto a sinistra della GUI ho inserito una prima bozza di menù per i setting.
+Il meccanismo on line-offline funziona. 
+Il meccanismo anonimo-scegli nome funziona.
+il meccanismo della scelta della foto profilo è in working progress. 

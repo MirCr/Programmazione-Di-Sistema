@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>moc;h;cpp</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Header Files\Qt">
+      <UniqueIdentifier>{ee4ad481-55e3-4959-bdd2-66da81184153}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Threads">
+      <UniqueIdentifier>{8ad2c611-ef96-4b91-ba26-7843625247c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Imports">
+      <UniqueIdentifier>{b004a117-c2d3-4278-9602-071afe8e1386}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Other">
+      <UniqueIdentifier>{a6174e42-d1cf-4e11-adb4-034b02d6633f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Qt">
+      <UniqueIdentifier>{ffb4d147-f7f2-410c-bb77-081a38dac8df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Threads">
+      <UniqueIdentifier>{f6904a93-498d-4726-a7ad-e48e4fdfebb8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWin.cpp">
+      <Filter>Source Files\Qt</Filter>
+    </ClCompile>
+    <ClCompile Include="SenderThread.cpp">
+      <Filter>Source Files\Threads</Filter>
+    </ClCompile>
+    <ClCompile Include="ReceiverThread.cpp">
+      <Filter>Source Files\Threads</Filter>
+    </ClCompile>
+    <ClCompile Include="SetUserName.cpp">
+      <Filter>Source Files\Qt</Filter>
+    </ClCompile>
+    <ClCompile Include="SetUserPhoto.cpp">
+      <Filter>Source Files\Qt</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="MainWin.h">
+      <Filter>Header Files\Qt</Filter>
+    </QtMoc>
+    <QtMoc Include="SenderThread.h">
+      <Filter>Header Files\Threads</Filter>
+    </QtMoc>
+    <QtMoc Include="ReceiverThread.h">
+      <Filter>Header Files\Threads</Filter>
+    </QtMoc>
+    <QtMoc Include="SetUserName.h">
+      <Filter>Header Files\Qt</Filter>
+    </QtMoc>
+    <QtMoc Include="SetUserPhoto.h">
+      <Filter>Header Files\Qt</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="MainWin.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="SetUserName.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="SetUserPhoto.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GeneratedFiles\ui_MainWin.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonImports.h">
+      <Filter>Header Files\Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonNetworkImports.h">
+      <Filter>Header Files\Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="UserData.hpp">
+      <Filter>Header Files\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="UserDataComparator.hpp">
+      <Filter>Header Files\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_SetUserName.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_SetUserPhoto.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="Resources\Resources.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+  </ItemGroup>
+</Project>
