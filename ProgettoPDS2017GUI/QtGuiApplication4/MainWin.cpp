@@ -6,24 +6,18 @@
 
 MainWin::MainWin(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWinClass)
 {
-	//permette di visualizzare la GUI " traducendo" il file XML creato da QT Designer in codice C++.
+	//Permette di visualizzare la GUI " traducendo" il file XML creato da QT Designer in codice C++.
 	ui->setupUi(this);
-	//Variabile che consente di passare dallo stato online allo stato offline e viceversa. True = online.
-	sharedOnlineFlag = std::make_shared<bool>();
-	//Setto a true il flag in modo da essere online di default.
-	*sharedOnlineFlag = true;
-	//Creo la lista di utenti connessi in rete.
-	sharedUserSet = std::make_shared<std::set<UserData, UserDataComparator>>();
-	//Setto il nome utente.
-	sharedName = std::make_shared<std::string>();
-	std::string name;
-	fetchUserData(name);
+	//Chiamo la funzione di istanziazione delle variabili condivise.
+	InstantiateSharedVariables();
+	//Prelevo il nome dell'utente.
+	fetchUserData();
 	//Inizializzo l'oggetto senderThread.
-	senderThread = new SenderThread(sharedName, sharedOnlineFlag);
+	senderThread = new SenderThread(sharedUserName, sharedOnlineFlag);
 	//Avvio il Sender Thread.
 	senderThread->start();
 	//Inizializzo l'oggetto receiverThread.
-	receiverThread = new ReceiverThread(sharedUserSet);
+	receiverThread = new ReceiverThread(sharedUsersSet);
 	//Avvio il Receiver Thread.
 	receiverThread->start();
 	//Creo le connessioni tra segnali e slots.
@@ -32,10 +26,29 @@ MainWin::MainWin(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWinClass)
 
 MainWin::~MainWin()
 {
+	//Elimino la ui.
 	delete ui;
+
+	//Azzero i puntatori, così da far decrementare il punteggio di condivisione.
+	sharedUserName = nullptr;
+	sharedUsersSet = nullptr;
+	sharedOnlineFlag = nullptr;
 }
 
-//Funzione che connette i segnali dei Widget alle funzioni che ne determinano il funzionamento. 
+/*Funzione di istanziazione delle variabili condivise.*/
+void MainWin::InstantiateSharedVariables()
+{
+	//Variabile contenente i dati dell'utente.
+	sharedUserName = std::make_shared<UserData>("","127.0.0.1");
+	//Queue condivisa, contenente la lista degli utenti presenti nella rete locale.
+	sharedUsersSet = std::make_shared<std::set<UserData, UserDataComparator>>();
+	//Variabile che consente di passare dallo stato online allo stato offline e viceversa. True = online.
+	sharedOnlineFlag = std::make_shared<bool>();
+	//Setto a true il flag in modo da essere online di default.
+	*sharedOnlineFlag = true;
+}
+
+/*Funzione che connette i segnali dei Widget alle funzioni che ne determinano il funzionamento. */
 void MainWin::createConnections()
 {
 	//Main Window.
@@ -49,12 +62,12 @@ void MainWin::createConnections()
 	QObject::connect(receiverThread, SIGNAL(SetUsersListReady()), this, SLOT(createLabels()));
 }
 
-//Funzione che inserisce gli utenti nella QlistWidget.
-// QstringList è una lista di Stringhe. 
-// QlistWidget, è una lista dove ogni tupla può essere una composizione di oggetti.
-//Con questa funzione faccio in modo che ogni record sia composto
-//da un valore stringa progeniente dalla QStringList, una checkbox, e un immagine. 
-void MainWin::createLabels(/*std::shared_ptr<std::set<UserData, UserDataComparator>>& sharedUserSet*/)
+/*Funzione che inserisce gli utenti nella QlistWidget.
+  QstringList è una lista di Stringhe. 
+  QlistWidget, è una lista dove ogni tupla può essere una composizione di oggetti.
+  Con questa funzione faccio in modo che ogni record sia composto
+  da un valore stringa progeniente dalla QStringList, una checkbox, e un immagine. */
+void MainWin::createLabels()
 {
 	QStringList strListNomiUtenti;
 	std::string nome;
@@ -64,7 +77,7 @@ void MainWin::createLabels(/*std::shared_ptr<std::set<UserData, UserDataComparat
 	ui->listWidget->clear();
 
 	qDebug() << "Creo la lista \n";
-	for (std::set<UserData, UserDataComparator>::iterator it = sharedUserSet->begin(); it != sharedUserSet->end(); ++it)
+	for (std::set<UserData, UserDataComparator>::iterator it = sharedUsersSet->begin(); it != sharedUsersSet->end(); ++it)
 	{
 		//Prelevo in nome ricevuto come String e lo salvo in un oggetto di tipo QString.
 		nome = it->getName();
@@ -88,20 +101,20 @@ void MainWin::createLabels(/*std::shared_ptr<std::set<UserData, UserDataComparat
 	}
 }
 
-//Funzione che si attiva al click del tasto share.
+/*Funzione che si attiva al click del tasto share.*/
 void MainWin::share()
 {
 
 }
 
-//Funzione che si attiva al click del tasto cancel.
+/*Funzione che si attiva al click del tasto cancel.*/
 void MainWin::cancel()
 {	
 
 }
 
-//Funziona che controlla l'evento delle checkBox. Se si spunta un record verrà cambiato il suo colore di sfondo. 
-//IDEA: Possiamo usare questo scheletro per selezionare gli utenti da aggiungere alla lista "condividi con". 
+/*Funziona che controlla l'evento delle checkBox. Se si spunta un record verrà cambiato il suo colore di sfondo. 
+  IDEA: Possiamo usare questo scheletro per selezionare gli utenti da aggiungere alla lista "condividi con".*/
 void MainWin::highlightChecked(QListWidgetItem *item) 
 {
 	if (item->checkState() == Qt::Checked) 
@@ -114,7 +127,7 @@ void MainWin::highlightChecked(QListWidgetItem *item)
 	}
 }
 
-//Slot richiamato da thread1 ogni secondo per 100 volte.FUNZIONE DI TEST. 
+/*Slot richiamato da thread1 ogni secondo per 100 volte.FUNZIONE DI TEST.*/
 void MainWin::avanza(int i= 0)
 {
 	ui->progressBar->setValue(i);
@@ -167,7 +180,7 @@ void MainWin::setUsername()
 			//CAmbio il nome untente con quello iserito dall'utente.
 			ui->actionNome->setText(text);
 			//Converto da QString a std::string. e la passo allo sharedName.
-			*sharedName = text.toLocal8Bit().constData();
+			sharedUserName->setName(text.toLocal8Bit().constData());
 		}
 
 		ui->actionAnonimo->setChecked(false);
@@ -176,43 +189,74 @@ void MainWin::setUsername()
 	{
 		ui->actionNome->setChecked(true);
 		ui->actionAnonimo->setChecked(false);
-		*sharedName = "Antonio";
+		sharedUserName->setName("Antonio");
 	}
 
 }
 
-
+/*DA ELIMINARE*/
 void MainWin::setAnonimo()
 {
 	if (ui->actionAnonimo->isChecked())
 	{
 		ui->actionNome->setChecked(false);
-		*sharedName = "Anonymous";
+		sharedUserName->setName("Anonymous");
 	}
 
 	else if (!ui->actionAnonimo->isChecked() && !ui->actionNome->isChecked())
 	{
 		ui->actionAnonimo->setChecked(true);
 		ui->actionNome->setChecked(false);
-		*sharedName = "Anonymous";
+		sharedUserName->setName("Anonymous");
 	}
 }
 
 
 /*Funzione di lettura dei dati dell'utente da file.*/
-void MainWin::fetchUserData(std::string &name)
+void MainWin::fetchUserData()
 {
-	//Creo un nuovo oggetto di tipo ifstream che punta al file dei dati dell'utente
+	//Creo un nuovo oggetto di tipo ifstream che punta al file dei dati dell'utente.
 	std::ifstream userData("data");
 	//Se il file esiste entro qui.
 	if (userData.good())
 	{
-		userData >> name;
+		std::string data;
+		//Leggo e setto il nome dell'utente.
+		userData >> data;
+		sharedUserName->setName(data);
+		//Leggo e setto la foto dell'utente.
+		userData >> data;
+		//Se la foto è quella di default la imposto dalle risorse del programma.
+		if (data == "default")
+		{
+			sharedUserName->setImage(QImage(":/images/DefaultUser"));
+		}
+		//Altrimenti leggo e setto la foto da file.
+		else
+		{
+			//Creo un nuovo oggetto di tipo ifstream che punta alla foto dell'utente.
+			std::ifstream photo(data);
+			//Se la foto esiste entro qui.
+			if (photo.good())
+			{
+				//Leggo la foto selezionata.
+				QImageReader reader(QString::fromStdString(data));
+				reader.setAutoTransform(true);
+				QImage newImage = reader.read();
+				//Setto la foto dell'utente.
+				sharedUserName->setImage(newImage);
+			}
+			//Altrimenti imposto la foto di default.
+			else
+			{
+				sharedUserName->setImage(QImage(":/images/DefaultUser"));
+			}
+		}
 	}
 	//Se invece il file non esiste entro qui.
 	else
 	{
-		SetUserName sun;
+		SetUserName sun(sharedUserName);
 		sun.exec();
 	}
 	userData.close();

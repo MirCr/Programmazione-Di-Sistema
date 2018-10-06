@@ -1,9 +1,9 @@
 #include "SenderThread.h"
 
 
-SenderThread::SenderThread(std::shared_ptr<std::string>& sharedName, std::shared_ptr<bool>& sharedOnlineFlag, QObject *parent): QThread(parent)
+SenderThread::SenderThread(std::shared_ptr<UserData>& sharedUserName, std::shared_ptr<bool>& sharedOnlineFlag, QObject *parent): QThread(parent)
 {
-	this->sharedName = sharedName;
+	this->sharedUserName = sharedUserName;
 	this->sharedOnlineFlag = sharedOnlineFlag;
 }
 
@@ -16,7 +16,8 @@ SenderThread::~SenderThread()
 	closesocket(sendSocket);
 	//Termino l'uso della Winsock 2 DLL(Ws2_32.dll).
 	WSACleanup();
-	//Azzero il puntatore, facendo così decrementare il punteggio di condivisione.
+	//Azzero i puntatori, così da far decrementare il punteggio di condivisione.
+	sharedUserName = nullptr;
 	sharedOnlineFlag = nullptr;
 }
 
@@ -65,7 +66,7 @@ void SenderThread::sendMulticastPackets()
 		qDebug() << "SENDER THREAD\n";
 
 		//Converto il nome dell'utente in un const char *;
-		std::string nome = *sharedName;
+		std::string nome = sharedUserName->getName();
 		const char * cname = nome.c_str();
 
 		//Sono online. Quindi invio.

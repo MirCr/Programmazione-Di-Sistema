@@ -7,7 +7,7 @@ class SenderThread : public QThread
 	Q_OBJECT
 
 	public:
-		SenderThread( std::shared_ptr<std::string>& sharedName, std::shared_ptr<bool>& sharedOnlineFlag, QObject *parent = 0);
+		SenderThread(std::shared_ptr<UserData>& sharedName, std::shared_ptr<bool>& sharedOnlineFlag, QObject *parent = 0);
 		~SenderThread();
 		void sendMulticastPackets();
 
@@ -25,7 +25,7 @@ class SenderThread : public QThread
 		//Thread della classe.
 		std::thread thread;
 		//Nome dell'utente.
-		std::shared_ptr<std::string> sharedName;
+		std::shared_ptr<UserData> sharedUserName;
 		//Variabile che consente di passare dallo stato online allo stato offline e viceversa. True = online.
 		std::shared_ptr<bool> sharedOnlineFlag;
 };

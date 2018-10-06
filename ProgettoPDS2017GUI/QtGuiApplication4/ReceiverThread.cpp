@@ -1,9 +1,7 @@
 #include "ReceiverThread.h"
 
-
-ReceiverThread::ReceiverThread(std::shared_ptr<std::set<UserData, UserDataComparator>>& sharedUserSet, QObject *parent): QThread(parent)
-{	
-	
+ReceiverThread::ReceiverThread(std::shared_ptr<std::set<UserData, UserDataComparator>>& sharedUserSet, QObject *parent) : QThread(parent)
+{
 	this->sharedUserSet = sharedUserSet;
 }
 
@@ -17,7 +15,7 @@ ReceiverThread::~ReceiverThread()
 	closesocket(listenSocket);
 	//Termino l'uso della Winsock 2 DLL(Ws2_32.dll).
 	WSACleanup();
-	//Azzero i puntatori, facendo così decrementare il punteggio di condivisione.	
+	//Azzero i puntatori, così da far decrementare il punteggio di condivisione.	
 	sharedUserSet = nullptr;
 }
 
