@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>261</width>
-    <height>146</height>
+    <height>161</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,10 +20,15 @@
    <property name="geometry">
     <rect>
      <x>90</x>
-     <y>100</y>
+     <y>110</y>
      <width>81</width>
-     <height>23</height>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Next</string>
@@ -33,7 +38,7 @@
    <property name="geometry">
     <rect>
      <x>60</x>
-     <y>60</y>
+     <y>70</y>
      <width>141</width>
      <height>20</height>
     </rect>
@@ -45,8 +50,13 @@
      <x>20</x>
      <y>9</y>
      <width>221</width>
-     <height>41</height>
+     <height>51</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Hi new user! Please enter the name by which other users of the network will identify you:</string>

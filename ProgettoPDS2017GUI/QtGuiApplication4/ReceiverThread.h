@@ -6,23 +6,25 @@ class ReceiverThread : public QThread
 {
 	Q_OBJECT
 
-public:
-	ReceiverThread(std::shared_ptr<std::set<UserData, UserDataComparator>>& sharedUserSet, QObject *parent = 0);
-	~ReceiverThread();
-	void listenForMulticastData();
-	std::set <std::string> ReceiverThread::getHostIPs();
+	public:
+		ReceiverThread(std::shared_ptr<std::set<UserData, UserDataComparator>>& sharedUserSet, QObject *parent = 0);
+		~ReceiverThread();
+		/*Metodo di emissione del segnale di eccezione.*/
+		void EmitException(QString exception);
 
-	// run() emetterà il segnale SetUsersListReady() ogni volta che ha una lista pronta e la passerà al metodo che aggiorna la WidgetList.
-signals:
-	void SetUsersListReady();
+	signals:
+		//Segnale emesso ogni volta che viene aggiunto un nuovo oggetto al set.
+		void SetUsersListReady();
+		//Segnale emesso in caso di errore.
+		void ReceiverException(QString exception);
 
-	//Riscrivo il comportamento del metodo run();
-protected:
-	void run() override;
+		//Riscrivo il comportamento del metodo run();
+	protected:
+		void run() override;
 
-private:
-	//Socket di ascolto.
-	int listenSocket;
-	//Queue condivisa, contenente la lista degli ip degli utenti presenti nella rete locale.
-	std::shared_ptr<std::set<UserData, UserDataComparator>> sharedUserSet;
+	private:
+		//Socket di ascolto.
+		int listenSocket;
+		//Queue condivisa, contenente la lista degli ip degli utenti presenti nella rete locale.
+		std::shared_ptr<std::set<UserData, UserDataComparator>> sharedUserSet;
 };

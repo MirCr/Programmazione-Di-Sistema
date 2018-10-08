@@ -114,6 +114,7 @@
     </QtRcc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ExceptionWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWin.cpp" />
     <ClCompile Include="ReceiverThread.cpp" />
@@ -125,6 +126,7 @@
     <QtMoc Include="MainWin.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtUic Include="ExceptionWindow.ui" />
     <QtUic Include="MainWin.ui" />
     <QtUic Include="SetUserName.ui" />
     <QtUic Include="SetUserPhoto.ui" />
@@ -132,6 +134,11 @@
   <ItemGroup>
     <ClInclude Include="CommonImports.h" />
     <ClInclude Include="CommonNetworkImports.h" />
+    <QtMoc Include="ExceptionWindow.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;.\..\..\QtGuiApplication4\QtGuiApplication4</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;.\..\..\QtGuiApplication4\QtGuiApplication4</IncludePath>
+    </QtMoc>
+    <ClInclude Include="GeneratedFiles\ui_ExceptionWindow.h" />
     <ClInclude Include="GeneratedFiles\ui_MainWin.h" />
     <QtMoc Include="ReceiverThread.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName)\.;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtWidgets;.\..\..\QtGuiApplication4\QtGuiApplication4</IncludePath>

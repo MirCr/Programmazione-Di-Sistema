@@ -23,7 +23,7 @@ class SetUserPhoto: public QDialog
 
 	public slots:
 		void ChoosePhoto();
-		void NextButton();
+		void SaveButton();
 
 	private:
 		//Tramite l'oggetto ui posso accedere a tutti gli elementi grafici.

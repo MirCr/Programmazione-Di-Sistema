@@ -165,6 +165,9 @@
    <addaction name="menusettings"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="floatable">
+    <bool>true</bool>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>

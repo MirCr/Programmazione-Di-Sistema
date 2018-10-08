@@ -1,6 +1,5 @@
 #include "SenderThread.h"
 
-
 SenderThread::SenderThread(std::shared_ptr<UserData>& sharedUserName, std::shared_ptr<bool>& sharedOnlineFlag, QObject *parent): QThread(parent)
 {
 	this->sharedUserName = sharedUserName;
@@ -21,14 +20,8 @@ SenderThread::~SenderThread()
 	sharedOnlineFlag = nullptr;
 }
 
-/*Metodo richiamato quando viene avviato il thread.*/
+/*Metodo chiamato all'avvio del thread.*/
 void SenderThread::run()
-{
-	sendMulticastPackets();
-}
-
-/*Metodo per l'invio di pacchetti UDP multicast.*/
-void SenderThread::sendMulticastPackets()
 {
 	//Variabile winsock.
 	WSADATA wsaData;
@@ -39,8 +32,7 @@ void SenderThread::sendMulticastPackets()
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0)
 	{
-		//TODO: GESTIONE ERRORE.
-		qDebug()<< "Lo startup di Winsock e' fallito con il seguente errore: " << iResult << "\n";
+		EmitException(QString::fromStdString("Lo startup di Winsock e' fallito con il seguente errore: " + std::to_string(iResult)));
 		return;
 	}
 
@@ -48,8 +40,7 @@ void SenderThread::sendMulticastPackets()
 	sendSocket = (int)socket(AF_INET, SOCK_DGRAM, 0);
 	if (sendSocket == INVALID_SOCKET)
 	{
-		//TODO: GESTIONE ERRORE.
-		qDebug() << "La creazione del socket e' fallita con il seguente errore: " << WSAGetLastError() <<"\n";
+		EmitException(QString::fromStdString("La creazione del socket e' fallita con il seguente errore: " + std::to_string(WSAGetLastError())));
 		return;
 	}
 
@@ -63,8 +54,6 @@ void SenderThread::sendMulticastPackets()
 	//Invio dei dati verso la destinazione.
 	while (1)
 	{
-		qDebug() << "SENDER THREAD\n";
-
 		//Converto il nome dell'utente in un const char *;
 		std::string nome = sharedUserName->getName();
 		const char * cname = nome.c_str();
@@ -76,8 +65,7 @@ void SenderThread::sendMulticastPackets()
 			iResult = (int)sendto(sendSocket, cname, strlen(cname), 0, (struct sockaddr*) &addr, sizeof(addr));
 			if (iResult < 0)
 			{
-				//TODO: GESTIONE ERRORE.
-				qDebug() << "L'invio e' fallito con il seguente errore: " << WSAGetLastError() << "\n";
+				EmitException(QString::fromStdString("L'invio dei dati e' fallito con il seguente errore: " + std::to_string(WSAGetLastError())));
 				return;
 			}
 			qDebug() << "SenderThread: ho inviato questo dato: " << cname << "\n";
@@ -91,4 +79,13 @@ void SenderThread::sendMulticastPackets()
 			Sleep(multicastOfflineSendSleepTime * 1000);
 		}
 	}
+}
+
+/*Metodo di emissione del segnale di eccezione.*/
+void SenderThread::EmitException(QString exception)
+{
+	//Aggiungo una riga comune a tutte le eccezioni.
+	exception.append(". Si prega di verificare la connessione e di riavviare il programma.");
+	//Emetto il segnale relativo alle eccezioni.
+	emit SenderException(exception);
 }

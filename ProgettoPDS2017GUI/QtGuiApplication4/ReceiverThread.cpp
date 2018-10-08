@@ -19,14 +19,8 @@ ReceiverThread::~ReceiverThread()
 	sharedUserSet = nullptr;
 }
 
+/*Metodo chiamato all'avvio del thread.*/
 void ReceiverThread::run()
-{
-	listenForMulticastData();
-}
-
-
-/* Metodo per l'ascolto di pacchetti UDP multicast.*/
-void ReceiverThread::listenForMulticastData()
 {
 	//Variabile winsock.
 	WSADATA wsaData;
@@ -34,26 +28,60 @@ void ReceiverThread::listenForMulticastData()
 	int iResult;
 	//Boolean di verifica ip.
 	bool isContained;
+	//List contenente gli IP del dispositivo corrente.
+	std::set <std::string> hostIP;
+	//Stringa contenente il nome dell'host corrente.
+	char hostName[80];
 
 	//Inizializzo Winsock.
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0)
 	{
-		//TODO: GESTIONE ERRORE.
-		qDebug() << "Lo startup di Winsock e' fallito con il seguente errore: " << iResult << "\n";
+		EmitException(QString::fromStdString("Lo startup di Winsock e' fallito con il seguente errore: " + std::to_string(iResult)));
 		return;
 	}
 
-	//Prelevo la lista di ip del dispositivo corrente.
-	std::set <std::string> hostIP = getHostIPs();
+
+
+	//PRELIEVO DELLA LISTA DI IP DEL DISPOSITIVO CORRENTE.
+	//Provo a prendere il nome dell'host corrente.
+	iResult = gethostname(hostName, sizeof(hostName));
+	if (iResult == SOCKET_ERROR)
+	{
+		EmitException(QString::fromStdString("Il prelievo del nome dell'host e' fallito con il seguente errore: " + std::to_string(WSAGetLastError())));
+		return;
+	}
+	qDebug() << "Il nome dell'host e': " << hostName << "." << "\n";
+
+	//Prelevo la lista degli indirizzi del dispositivo corrente.
+	struct hostent *phe = gethostbyname(hostName);
+	if (phe == 0)
+	{
+		EmitException(QString::fromStdString("Il prelievo della lista degli indirizzi dell'host e' fallito"));
+		return;
+	}
+
+	//Ciclo e salvo gli ip del dispositivo corrente.
+	for (iResult = 0; phe->h_addr_list[iResult] != 0; ++iResult)
+	{
+		struct in_addr addr;
+		memcpy(&addr, phe->h_addr_list[iResult], sizeof(struct in_addr));
+		hostIP.insert(std::string(inet_ntoa(addr)));
+		qDebug() << "Indirizzo " << iResult << ": " << inet_ntoa(addr) << "\n";
+	}
+
+	//Inserisco nella coda anche l'indirizzo di loopback 127.0.0.1.
+	hostIP.insert(std::string("127.0.0.1"));
+	qDebug() << "Indirizzo " << iResult << ": " << "127.0.0.1" << "\n";
+
+
 
 	//SETTING DEL LISTENER.
 	//Creo quel che sembra un socket UDP ordinario.
 	listenSocket = (int)socket(AF_INET, SOCK_DGRAM, 0);
 	if (listenSocket == INVALID_SOCKET)
 	{
-		//TODO: GESTIONE ERRORE.
-		qDebug() << "La creazione del socket e' fallita con il seguente errore: " << WSAGetLastError() << "\n";
+		EmitException(QString::fromStdString("La creazione del socket e' fallita con il seguente errore: " + std::to_string(WSAGetLastError())));
 		return;
 	}
 
@@ -61,9 +89,8 @@ void ReceiverThread::listenForMulticastData()
 	u_int yes = 1;
 	iResult = setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&yes, sizeof(yes));
 	if (iResult < 0)
-	{
-		//TODO: GESTIONE ERRORE.
-		qDebug() << "L'opzione di riuso dell'indirizzo e' fallita con il seguente errore: " << WSAGetLastError() << "\n";
+	{	
+		EmitException(QString::fromStdString("L'opzione di riuso dell'indirizzo e' fallita con il seguente errore: " + std::to_string(WSAGetLastError())));
 		return;
 	}
 
@@ -78,8 +105,7 @@ void ReceiverThread::listenForMulticastData()
 	iResult = bind(listenSocket, (struct sockaddr*) &addr, sizeof(addr));
 	if (iResult == SOCKET_ERROR)
 	{
-		//TODO: GESTIONE ERRORE.
-		qDebug() << "Il bind e'  fallito con il seguente errore: " << WSAGetLastError() << "\n";
+		EmitException(QString::fromStdString("Il bind degli indirizzi e' fallito con il seguente errore: " + std::to_string(WSAGetLastError())));
 		return;
 	}
 
@@ -90,8 +116,7 @@ void ReceiverThread::listenForMulticastData()
 	iResult = setsockopt(listenSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq));
 	if (iResult < 0)
 	{
-		//TODO: GESTIONE ERRORE.
-		qDebug() << "L'opzione multicast e' fallita con il seguente errore: " << WSAGetLastError() << "\n";
+		EmitException(QString::fromStdString("Il prelievo del nome dell'host e' fallito con il seguente errore: " + std::to_string(WSAGetLastError())));
 		return;
 	}
 
@@ -103,8 +128,7 @@ void ReceiverThread::listenForMulticastData()
 		iResult = recvfrom(listenSocket, msgbuf, multicastMsgBufSize, 0, (struct sockaddr *) &addr, &addrlen);
 		if (iResult < 0)
 		{
-			//TODO: GESTIONE ERRORE.
-			qDebug() << "La ricezione e' fallita con il seguente errore: " << WSAGetLastError() << "\n";
+			EmitException(QString::fromStdString("La ricezione dei dati e' fallita con il seguente errore: " + std::to_string(WSAGetLastError())));
 			return;
 		}
 		//Inserisco il carattere di terminazione al termine della stringa.
@@ -127,49 +151,13 @@ void ReceiverThread::listenForMulticastData()
 		qDebug() << "ReceiverThread: ciclo. \n";
 	}
 	return;
-};
+}
 
-/*Metodo per prelevare il set di ip del PC corrente.*/
-std::set <std::string> ReceiverThread::getHostIPs()
+/*Metodo di emissione del segnale di eccezione.*/
+void ReceiverThread::EmitException(QString exception)
 {
-	int i;
-	//List contenente gli IP del dispositivo corrente.
-	std::set <std::string> hostIP;
-	//Stringa contenente il nome dell'host corrente.
-	char hostName[80];
-	//Intero contenente il codice di errore.
-	int iResult;
-
-	//Provo a prendere il nome dell'host corrente.
-	iResult = gethostname(hostName, sizeof(hostName));
-	if (iResult == SOCKET_ERROR)
-	{
-		//TODO: GESTIONE ERRORE.
-		qDebug() << "Il prelievo del nome dell'host e' fallito con il seguente errore: " << WSAGetLastError() << "\n";
-	}
-	qDebug() << "Il nome dell'host e': " << hostName << "." << "\n";
-
-	//Prelevo la lista degli indirizzi del dispositivo corrente.
-	struct hostent *phe = gethostbyname(hostName);
-	if (phe == 0)
-	{
-		//TODO: GESTIONE ERRORE.
-		qDebug() << "Il prelievo della lista degli indirizzi dell'host e' fallito." << "\n";
-	}
-
-	//Ciclo e salvo gli ip del dispositivo corrente.
-	for (i = 0; phe->h_addr_list[i] != 0; ++i)
-	{
-		struct in_addr addr;
-		memcpy(&addr, phe->h_addr_list[i], sizeof(struct in_addr));
-		hostIP.insert(std::string(inet_ntoa(addr)));
-		qDebug() << "Indirizzo " << i << ": " << inet_ntoa(addr) << "\n";
-	}
-
-	//Inserisco nella coda anche l'indirizzo di loopback 127.0.0.1.
-	hostIP.insert(std::string("127.0.0.1"));
-	qDebug() << "Indirizzo " << i << ": " << "127.0.0.1" << "\n";
-
-	//restituisco la lista di ip del dispositivo corrente.
-	return hostIP;
+	//Aggiungo una riga comune a tutte le eccezioni.
+	exception.append(". Si prega di verificare la connessione e di riavviare il programma.");
+	//Emetto il segnale relativo alle eccezioni.
+	emit ReceiverException(exception);
 }

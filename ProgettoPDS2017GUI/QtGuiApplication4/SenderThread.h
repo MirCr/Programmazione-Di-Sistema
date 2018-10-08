@@ -9,11 +9,12 @@ class SenderThread : public QThread
 	public:
 		SenderThread(std::shared_ptr<UserData>& sharedName, std::shared_ptr<bool>& sharedOnlineFlag, QObject *parent = 0);
 		~SenderThread();
-		void sendMulticastPackets();
+		/*Metodo di emissione del segnale di eccezione.*/
+		void EmitException(QString exception);
 
-	// run() emetterà il segnale startSender().
 	signals:
-		void startSender();
+		//Segnale emesso in caso di errore.
+		void SenderException(QString exception);
 
 	//Riscrivo il comportamento del metodo run();
 	protected:

@@ -10,7 +10,7 @@ SetUserPhoto::SetUserPhoto(std::shared_ptr<UserData> sharedUserName, QWidget *pa
 	ui->setupUi(this);
 	//Creo le connessioni.
 	QObject::connect(ui->SetPhotoChooseButton, SIGNAL(clicked()), this, SLOT(ChoosePhoto()));
-	QObject::connect(ui->SetPhotoNextButton, SIGNAL(clicked()), this, SLOT(NextButton()));
+	QObject::connect(ui->SetPhotoSaveButton, SIGNAL(clicked()), this, SLOT(SaveButton()));
 }
 
 SetUserPhoto::~SetUserPhoto()
@@ -41,8 +41,8 @@ void SetUserPhoto::ChoosePhoto()
 	ui->UserPhotoImage->setPixmap(QPixmap::fromImage(newImage));
 }
 
-/*Metodo di implementazione del bottone Next.*/
-void SetUserPhoto::NextButton()
+/*Metodo di implementazione del bottone Save.*/
+void SetUserPhoto::SaveButton()
 {
 	//Creo un nuovo file.
 	std::fstream newUserData;

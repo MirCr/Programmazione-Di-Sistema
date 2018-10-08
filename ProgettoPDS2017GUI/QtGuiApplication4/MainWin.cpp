@@ -11,7 +11,7 @@ MainWin::MainWin(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWinClass)
 	//Chiamo la funzione di istanziazione delle variabili condivise.
 	InstantiateSharedVariables();
 	//Prelevo il nome dell'utente.
-	fetchUserData();
+	FetchUserData();
 	//Inizializzo l'oggetto senderThread.
 	senderThread = new SenderThread(sharedUserName, sharedOnlineFlag);
 	//Avvio il Sender Thread.
@@ -21,7 +21,7 @@ MainWin::MainWin(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWinClass)
 	//Avvio il Receiver Thread.
 	receiverThread->start();
 	//Creo le connessioni tra segnali e slots.
-	createConnections();
+	CreateConnections();
 }
 
 MainWin::~MainWin()
@@ -49,17 +49,21 @@ void MainWin::InstantiateSharedVariables()
 }
 
 /*Funzione che connette i segnali dei Widget alle funzioni che ne determinano il funzionamento. */
-void MainWin::createConnections()
+void MainWin::CreateConnections()
 {
 	//Main Window.
-	QObject::connect(ui->listWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(highlightChecked(QListWidgetItem*)));
-	QObject::connect(ui->shareBtn, SIGNAL(clicked()), this, SLOT(share()));
-	QObject::connect(ui->cancelBtn, SIGNAL(clicked()), this, SLOT(cancel()));
-	QObject::connect(ui->actionOnline, SIGNAL(triggered()), this, SLOT(setOnline()));
-	QObject::connect(ui->actionOffline, SIGNAL(triggered()), this, SLOT(setOffline()));
-	QObject::connect(ui->actionNome, SIGNAL(triggered()), this, SLOT(setUsername()));
-	QObject::connect(ui->actionAnonimo, SIGNAL(triggered()), this, SLOT(setAnonimo()));
-	QObject::connect(receiverThread, SIGNAL(SetUsersListReady()), this, SLOT(createLabels()));
+	QObject::connect(ui->listWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(HighlightChecked(QListWidgetItem*)));
+	QObject::connect(ui->shareBtn, SIGNAL(clicked()), this, SLOT(Share()));
+	QObject::connect(ui->cancelBtn, SIGNAL(clicked()), this, SLOT(Cancel()));
+	QObject::connect(ui->actionOnline, SIGNAL(triggered()), this, SLOT(SetOnline()));
+	QObject::connect(ui->actionOffline, SIGNAL(triggered()), this, SLOT(SetOffline()));
+	QObject::connect(ui->actionNome, SIGNAL(triggered()), this, SLOT(SetUsername()));
+	QObject::connect(ui->actionAnonimo, SIGNAL(triggered()), this, SLOT(SetAnonimo()));
+	//Segnale di avvenuto aggiornamento della lista.
+	QObject::connect(receiverThread, SIGNAL(SetUsersListReady()), this, SLOT(CreateLabels()));
+	//Segnali di eccezione avvenuta nei thread di invio e ricezione messaggi UDP multicast.
+	QObject::connect(receiverThread, SIGNAL(ReceiverException(QString)), this, SLOT(ExceptionManager(QString)));
+	QObject::connect(senderThread, SIGNAL(SenderException(QString)), this, SLOT(ExceptionManager(QString)));
 }
 
 /*Funzione che inserisce gli utenti nella QlistWidget.
@@ -67,7 +71,7 @@ void MainWin::createConnections()
   QlistWidget, è una lista dove ogni tupla può essere una composizione di oggetti.
   Con questa funzione faccio in modo che ogni record sia composto
   da un valore stringa progeniente dalla QStringList, una checkbox, e un immagine. */
-void MainWin::createLabels()
+void MainWin::CreateLabels()
 {
 	QStringList strListNomiUtenti;
 	std::string nome;
@@ -102,20 +106,20 @@ void MainWin::createLabels()
 }
 
 /*Funzione che si attiva al click del tasto share.*/
-void MainWin::share()
+void MainWin::Share()
 {
 
 }
 
 /*Funzione che si attiva al click del tasto cancel.*/
-void MainWin::cancel()
+void MainWin::Cancel()
 {	
 
 }
 
 /*Funziona che controlla l'evento delle checkBox. Se si spunta un record verrà cambiato il suo colore di sfondo. 
   IDEA: Possiamo usare questo scheletro per selezionare gli utenti da aggiungere alla lista "condividi con".*/
-void MainWin::highlightChecked(QListWidgetItem *item) 
+void MainWin::HighlightChecked(QListWidgetItem *item) 
 {
 	if (item->checkState() == Qt::Checked) 
 	{
@@ -128,14 +132,14 @@ void MainWin::highlightChecked(QListWidgetItem *item)
 }
 
 /*Slot richiamato da thread1 ogni secondo per 100 volte.FUNZIONE DI TEST.*/
-void MainWin::avanza(int i= 0)
+void MainWin::Avanza(int i= 0)
 {
 	ui->progressBar->setValue(i);
 }
 
 //SetOnline e SetOffline assieme implementano un meccanismo di checking esclusivo che permette di essere online oppure offline.
 //Questo meccanismo permette di attivare lo stato antagonista anche nel caso in cui si cerchi di disattivare lo stato attivo corrente.
-void MainWin::setOnline()
+void MainWin::SetOnline()
 {	
 	if (ui->actionOnline->isChecked())
 	{
@@ -150,7 +154,7 @@ void MainWin::setOnline()
 	}
 }
 
-void MainWin::setOffline()
+void MainWin::SetOffline()
 {
 	if (ui->actionOffline->isChecked())
 	{
@@ -168,7 +172,7 @@ void MainWin::setOffline()
 
 /*SetUsername e SetAnonimo assieme implementano un meccanismo di checking esclusivo che permette all'utente di usare o il proprio username o in nome "Anonymous".
 Questo meccanismo permette di attivare lo stato antagonista anche nel caso in cui si cerchi di disattivare lo stato attivo corrente.*/
-void MainWin::setUsername()
+void MainWin::SetUsername()
 {
 	if (ui->actionNome->isChecked())
 	{
@@ -195,7 +199,7 @@ void MainWin::setUsername()
 }
 
 /*DA ELIMINARE*/
-void MainWin::setAnonimo()
+void MainWin::SetAnonimo()
 {
 	if (ui->actionAnonimo->isChecked())
 	{
@@ -212,8 +216,8 @@ void MainWin::setAnonimo()
 }
 
 
-/*Funzione di lettura dei dati dell'utente da file.*/
-void MainWin::fetchUserData()
+/*Metodo di lettura dei dati dell'utente da file.*/
+void MainWin::FetchUserData()
 {
 	//Creo un nuovo oggetto di tipo ifstream che punta al file dei dati dell'utente.
 	std::ifstream userData("data");
@@ -260,4 +264,12 @@ void MainWin::fetchUserData()
 		sun.exec();
 	}
 	userData.close();
+}
+
+/*Metodo di gestione delle eccezioni.*/
+void MainWin::ExceptionManager(QString exception)
+{
+	ExceptionWindow ew(exception);
+	ew.exec();
+	QApplication::quit();
 }

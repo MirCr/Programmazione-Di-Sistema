@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/images">
         <file alias="DefaultUser">DefaultUser.png</file>
+        <file alias="Exception">Exception.png</file>
     </qresource>
 </RCC>

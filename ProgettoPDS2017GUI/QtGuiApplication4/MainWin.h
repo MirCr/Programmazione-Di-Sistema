@@ -15,6 +15,7 @@
 #include "ui_MainWin.h"
 #include "SetUserName.h"
 #include "SetUserPhoto.h"
+#include "ExceptionWindow.h"
 
 //Network threads.
 #include "SenderThread.h"
@@ -30,17 +31,18 @@ class MainWin : public QMainWindow
 		void InstantiateSharedVariables();
 
 	public slots:
-		void createConnections();
-		void createLabels();
-		void share();
-		void cancel();
-		void highlightChecked(QListWidgetItem *item);
-		void avanza(int); //TEST FUNCTION.
-		void setOnline();
-		void setOffline();
-		void setUsername();
-		void setAnonimo();
-		void fetchUserData();
+		void CreateConnections();
+		void CreateLabels();
+		void Share();
+		void Cancel();
+		void HighlightChecked(QListWidgetItem *item);
+		void Avanza(int); //TEST FUNCTION.
+		void SetOnline();
+		void SetOffline();
+		void SetUsername();
+		void SetAnonimo();
+		void FetchUserData();
+		void ExceptionManager(QString exception);
 
 	private:
 		//Tramite l'oggetto ui posso accedere a tutti gli elementi grafici.
